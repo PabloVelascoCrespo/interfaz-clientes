@@ -43,7 +43,7 @@ ColourWidgetText('Muy fria', '#83FFFD')
 ColourWidgetText('Fria', '#10EFFF') 
 ColourWidgetText('Templada', '#42FF35') 
 ColourWidgetText('Calurosa', '#FF0000') 
-ColourWidgetText('Muy calurosa', '#B30000') 
+ColourWidgetText('Muy calurosa', '#B30000')
 
 def disable_selectbox(letra):
     if letra == "a":
@@ -87,7 +87,6 @@ def buscar():
             col5.metric("Fiesta", "No")
     else:
         st.write("Día no encontrado")
-    st.subheader("Resumen:")
 
 def reiniciar():
     st.session_state.cliente_disabled = False
