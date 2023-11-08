@@ -33,7 +33,7 @@ def disable_selectbox(letra):
 
 #TODO
 def buscar():
-    respuesta = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "2022-10-12"}')
+    respuesta = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha)+'"}')
     if( respuesta.status_code == requests.codes.ok ):
         diccionario_respuesta = json.loads(respuesta.text)
         st.write("Fecha: " + str(diccionario_respuesta["fecha"]))
@@ -60,6 +60,9 @@ def buscar():
             col4.metric("Fiesta", str(diccionario_respuesta["detalles"]["fiesta"]))
         else:
             col4.metric("Fiesta", "No")
+    else:
+        st.write("Día no encontrado")
+        
 
 def reiniciar():
     st.session_state.cliente_disabled = False
@@ -80,8 +83,8 @@ lista_tipos_cliente = json.loads(json_tipos_cliente)["tipo_cliente"]
 col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
 
 with col_fecha:
-    d = st.date_input("Fecha", datetime.datetime.today())
-    st.write("La fecha elegida es: ", d)
+    fecha = st.date_input("Fecha", datetime.datetime.today())
+    st.write("La fecha elegida es: ", fecha)
 
 with col_cliente:
     cliente = st.selectbox(
