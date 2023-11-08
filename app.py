@@ -34,17 +34,6 @@ def ColourWidgetText(wgt_txt, wch_colour = '#000000'):
     htmlstr = htmlstr.replace('|wgt_txt|', "'" + wgt_txt + "'")
     components.html(f"{htmlstr}", height=0, width=0)
 
-ColourWidgetText('Primavera', '#F586E3')
-ColourWidgetText('Verano', '#FF7B21')
-ColourWidgetText('Otoño', '#B74E0D')
-ColourWidgetText('Invierno', '#AEEDE6')
-
-ColourWidgetText('Muy fria', '#83FFFD') 
-ColourWidgetText('Fria', '#10EFFF') 
-ColourWidgetText('Templada', '#42FF35') 
-ColourWidgetText('Calurosa', '#FF0000') 
-ColourWidgetText('Muy calurosa', '#B30000')
-
 def disable_selectbox(letra):
     if letra == "a":
         st.session_state.tipo_cliente_disabled = True
@@ -102,9 +91,18 @@ json_tipos_cliente = requests.get(url_tipo_clientes).text
 lista_clientes = json.loads(json_clientes)["contadores"]
 lista_tipos_cliente = json.loads(json_tipos_cliente)["tipo_cliente"]
 
-
-
 col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
+
+ColourWidgetText('Primavera', '#F586E3')
+ColourWidgetText('Verano', '#FF7B21')
+ColourWidgetText('Otoño', '#B74E0D')
+ColourWidgetText('Invierno', '#AEEDE6')
+
+ColourWidgetText('Muy fria', '#83FFFD') 
+ColourWidgetText('Fria', '#10EFFF') 
+ColourWidgetText('Templada', '#42FF35') 
+ColourWidgetText('Calurosa', '#FF0000') 
+ColourWidgetText('Muy calurosa', '#B30000')
 
 with col_fecha:
     fecha = st.date_input("Fecha", datetime.datetime.today())
