@@ -34,6 +34,11 @@ def ColourWidgetText(wgt_txt, wch_colour = '#000000'):
     htmlstr = htmlstr.replace('|wgt_txt|', "'" + wgt_txt + "'")
     components.html(f"{htmlstr}", height=0, width=0)
 
+ColourWidgetText('Primavera', '#F586E3')
+ColourWidgetText('Verano', '#FF7B21')
+ColourWidgetText('Otoño', '#B74E0D')
+ColourWidgetText('Invierno', '#AEEDE6')
+
 ColourWidgetText('Muy fria', '#83FFFD') 
 ColourWidgetText('Fria', '#10EFFF') 
 ColourWidgetText('Templada', '#42FF35') 
@@ -71,13 +76,18 @@ def buscar():
         else:
             for i in diccionario_respuesta["detalles"]["eventos"]:
                 col3.metric("Eventos", str(i["Nombre"]), str(i["Clase"]), delta_color="off")
-        if diccionario_respuesta["detalles"]["festivo"]:
-            col4.metric("Fiesta", str(diccionario_respuesta["detalles"]["fiesta"]))
+        if diccionario_respuesta["detalles"]["incidencias"] == []:
+            col4.metric("Incidencias", "No")
         else:
-            col4.metric("Fiesta", "No")
+            for i in diccionario_respuesta["detalles"]["incidencias"]:
+                col4.metric("Incidencias", i)
+        if diccionario_respuesta["detalles"]["festivo"]:
+            col5.metric("Fiesta", str(diccionario_respuesta["detalles"]["fiesta"]))
+        else:
+            col5.metric("Fiesta", "No")
     else:
         st.write("Día no encontrado")
-
+    st.subheader("Resumen:")
 
 def reiniciar():
     st.session_state.cliente_disabled = False
