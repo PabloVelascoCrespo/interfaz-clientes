@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import datetime
 import requests
 import json
@@ -9,7 +10,7 @@ st.markdown(
     """
 <style>
 [data-testid="stMetricValue"] {
-    font-size: 25px;
+    font-size: 20px;
 }
 </style>
 <style>
@@ -25,20 +26,33 @@ if "cliente_disabled" not in st.session_state:
     st.session_state.cliente_disabled = False
     st.session_state.tipo_cliente_disabled = False
 
+def ColourWidgetText(wgt_txt, wch_colour = '#000000'):
+    htmlstr = """<script>var elements = window.parent.document.querySelectorAll('*'), i;
+                    for (i = 0; i < elements.length; ++i) { if (elements[i].innerText == |wgt_txt|) 
+                        elements[i].style.color = ' """ + wch_colour + """ '; } </script>  """
+
+    htmlstr = htmlstr.replace('|wgt_txt|', "'" + wgt_txt + "'")
+    components.html(f"{htmlstr}", height=0, width=0)
+
+ColourWidgetText('Muy fria', '#83FFFD') 
+ColourWidgetText('Fria', '#10EFFF') 
+ColourWidgetText('Templada', '#42FF35') 
+ColourWidgetText('Calurosa', '#FF0000') 
+ColourWidgetText('Muy calurosa', '#B30000') 
+
 def disable_selectbox(letra):
     if letra == "a":
         st.session_state.tipo_cliente_disabled = True
     elif letra == "b":
         st.session_state.cliente_disabled = True
-
 #TODO
 def buscar():
     respuesta = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha)+'"}')
     if( respuesta.status_code == requests.codes.ok ):
         diccionario_respuesta = json.loads(respuesta.text)
-        st.write("Fecha: " + str(diccionario_respuesta["fecha"]))
-        st.write("Consumo del día: " + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]))
-        st.write("Meteorología:")
+        st.subheader("Fecha: " + str(diccionario_respuesta["fecha"]))
+        st.subheader("Consumo del día: " + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]))
+        st.subheader("Meteorología:")
 
         col1, col2, col3, col4, col5 = st.columns(5)
         col1.metric("Temperatura mínima", str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura_minima"]["etiqueta"]), str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura_minima"]["valor_numerico"]) + " ºC", delta_color="off")
@@ -55,14 +69,15 @@ def buscar():
         if diccionario_respuesta["detalles"]["eventos"] == []:
             col3.metric("Eventos", "No")
         else:
-            col3.metric("Eventos", "Si")
+            for i in diccionario_respuesta["detalles"]["eventos"]:
+                col3.metric("Eventos", str(i["Nombre"]), str(i["Clase"]), delta_color="off")
         if diccionario_respuesta["detalles"]["festivo"]:
             col4.metric("Fiesta", str(diccionario_respuesta["detalles"]["fiesta"]))
         else:
             col4.metric("Fiesta", "No")
     else:
         st.write("Día no encontrado")
-        
+
 
 def reiniciar():
     st.session_state.cliente_disabled = False
@@ -84,7 +99,6 @@ col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
 
 with col_fecha:
     fecha = st.date_input("Fecha", datetime.datetime.today())
-    st.write("La fecha elegida es: ", fecha)
 
 with col_cliente:
     cliente = st.selectbox(
@@ -94,7 +108,6 @@ with col_cliente:
         on_change=disable_selectbox,
         args="a"
     )
-    st.write("Has elegido a: "+cliente)
     st.button('BUSCAR', on_click=buscar)
     st.button('REINICIAR', on_click=reiniciar)
 
@@ -107,5 +120,4 @@ with col_tipo_cliente:
         on_change=disable_selectbox,
         args="b"
     )
-    st.write("Has elegido a: "+tipo_cliente)
 
