@@ -92,10 +92,10 @@ def buscar():
     respuesta2 = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha+timedelta(days=-2))+'"}')
     if( respuesta1.status_code == requests.codes.ok ):
         diccionario_respuesta1 = json.loads(respuesta1.text)
-        col2.metric("Día "+str(fecha+timedelta(days=-2))+":", "Consumo:", str(diccionario_respuesta1["tipo_de_dia_de_consumo"]["etiqueta"]))
+        col2.metric("Día "+str(fecha+timedelta(days=-1))+":", "Consumo:", str(diccionario_respuesta1["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
     if( respuesta2.status_code == requests.codes.ok ):
         diccionario_respuesta2 = json.loads(respuesta2.text)
-        col4.metric("Día "+str(fecha+timedelta(days=-1))+":", "Consumo:", str(diccionario_respuesta2["tipo_de_dia_de_consumo"]["etiqueta"]))
+        col4.metric("Día "+str(fecha+timedelta(days=-2))+":", "Consumo:", str(diccionario_respuesta2["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
 
 def reiniciar():
     st.session_state.cliente_disabled = False
@@ -123,6 +123,13 @@ ColourWidgetText('Fria', '#10EFFF')
 ColourWidgetText('Templada', '#42FF35') 
 ColourWidgetText('Calurosa', '#FF0000') 
 ColourWidgetText('Muy calurosa', '#B30000')
+
+ColourWidgetText('Bajo', 'green') 
+ColourWidgetText('Muy bajo', 'green') 
+ColourWidgetText('Regular', 'blue') 
+ColourWidgetText('Alto', 'red') 
+ColourWidgetText('Muy alto', 'red') 
+
 
 with col_fecha:
     fecha = st.date_input("Fecha", datetime.datetime.today())
