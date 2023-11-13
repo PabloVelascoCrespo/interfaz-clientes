@@ -1,5 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
+from datetime import timedelta
 import datetime
 import requests
 import json
@@ -10,7 +11,7 @@ st.markdown(
     """
 <style>
 [data-testid="stMetricValue"] {
-    font-size: 20px;
+    font-size: 18px;
 }
 </style>
 <style>
@@ -45,10 +46,20 @@ def buscar():
     if( respuesta.status_code == requests.codes.ok ):
         diccionario_respuesta = json.loads(respuesta.text)
         st.subheader("Fecha: " + str(diccionario_respuesta["fecha"]))
-        st.subheader("Consumo del día: " + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]))
+        color = ""
+        if str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy bajo" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Bajo":
+            color = "green"
+        elif str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy alto" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Alto":
+            color = "red"
+        elif str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Regular":
+            color = "blue"
+        else:
+            color = "gray"
+        st.subheader("Consumo del día: :"+color+"[" + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) + "]")
         st.subheader("Meteorología:")
 
         col1, col2, col3, col4, col5 = st.columns(5)
+
         col1.metric("Temperatura mínima", str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura_minima"]["etiqueta"]), str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura_minima"]["valor_numerico"]) + " ºC", delta_color="off")
         col2.metric("Temperatura media", str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura media"]["etiqueta"]), str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura media"]["valor_numerico"]) + " ºC", delta_color="off")
         col3.metric("Temperatura máxima", str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura_maxima"]["etiqueta"]), str(diccionario_respuesta["detalles"]["meteorologia"]["temperatura_maxima"]["valor_numerico"]) + " ºC", delta_color="off")
@@ -76,6 +87,15 @@ def buscar():
             col5.metric("Fiesta", "No")
     else:
         st.write("Día no encontrado")
+
+    respuesta1 = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha+timedelta(days=-1))+'"}')
+    respuesta2 = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha+timedelta(days=-2))+'"}')
+    if( respuesta1.status_code == requests.codes.ok ):
+        diccionario_respuesta1 = json.loads(respuesta1.text)
+        col2.metric("Día "+str(fecha+timedelta(days=-2))+":", "Consumo:", str(diccionario_respuesta1["tipo_de_dia_de_consumo"]["etiqueta"]))
+    if( respuesta2.status_code == requests.codes.ok ):
+        diccionario_respuesta2 = json.loads(respuesta2.text)
+        col4.metric("Día "+str(fecha+timedelta(days=-1))+":", "Consumo:", str(diccionario_respuesta2["tipo_de_dia_de_consumo"]["etiqueta"]))
 
 def reiniciar():
     st.session_state.cliente_disabled = False
