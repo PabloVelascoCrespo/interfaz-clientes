@@ -40,7 +40,7 @@ def disable_selectbox(letra):
         st.session_state.tipo_cliente_disabled = True
     elif letra == "b":
         st.session_state.cliente_disabled = True
-#TODO
+
 def buscar():
     respuesta = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha)+'"}')
     if( respuesta.status_code == requests.codes.ok ):
@@ -85,17 +85,18 @@ def buscar():
             col5.metric("Fiesta", str(diccionario_respuesta["detalles"]["fiesta"]))
         else:
             col5.metric("Fiesta", "No")
+        respuesta1 = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha+timedelta(days=-1))+'"}')
+        respuesta2 = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha+timedelta(days=-2))+'"}')
+        if( respuesta1.status_code == requests.codes.ok ):
+            diccionario_respuesta1 = json.loads(respuesta1.text)
+            col4.metric("Día "+str(fecha+timedelta(days=-1))+":", "Consumo:", str(diccionario_respuesta1["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
+        if( respuesta2.status_code == requests.codes.ok ):
+            diccionario_respuesta2 = json.loads(respuesta2.text)
+            col2.metric("Día "+str(fecha+timedelta(days=-2))+":", "Consumo:", str(diccionario_respuesta2["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
     else:
         st.write("Día no encontrado")
 
-    respuesta1 = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha+timedelta(days=-1))+'"}')
-    respuesta2 = requests.post(url_alerta_consumo_energetico, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, data='{"fecha": "'+str(fecha+timedelta(days=-2))+'"}')
-    if( respuesta1.status_code == requests.codes.ok ):
-        diccionario_respuesta1 = json.loads(respuesta1.text)
-        col2.metric("Día "+str(fecha+timedelta(days=-1))+":", "Consumo:", str(diccionario_respuesta1["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
-    if( respuesta2.status_code == requests.codes.ok ):
-        diccionario_respuesta2 = json.loads(respuesta2.text)
-        col4.metric("Día "+str(fecha+timedelta(days=-2))+":", "Consumo:", str(diccionario_respuesta2["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
+
 
 def reiniciar():
     st.session_state.cliente_disabled = False
