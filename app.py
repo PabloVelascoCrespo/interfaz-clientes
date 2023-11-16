@@ -182,4 +182,3 @@ with col_tipo_cliente:
         on_change=disable_selectbox,
         args="b"
     )
-
