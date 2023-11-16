@@ -54,7 +54,7 @@ def buscar():
     if( respuesta.status_code == requests.codes.ok ):
         diccionario_respuesta = json.loads(respuesta.text)
         st.subheader("Fecha: " + str(diccionario_respuesta["fecha"]))
-        if  st.session_state.tipo_cliente_disabled:
+        if  not st.session_state.cliente_disabled:
             st.subheader("Cliente: " + str(diccionario_respuesta["cnt"]))
         st.subheader("Tipo del Cliente: " + str(diccionario_respuesta["tipo_cliente"]))
         st.subheader("Afectación de Consumo: Nivel = " + str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]) + " y Sentido = " + str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
@@ -105,6 +105,7 @@ def buscar():
         if( respuesta2.status_code == requests.codes.ok ):
             diccionario_respuesta2 = json.loads(respuesta2.text)
             col2.metric("Día "+str(fecha+timedelta(days=-2))+":", "Consumo:", str(diccionario_respuesta2["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
+        
     else:
         st.write("Día no encontrado")
 
