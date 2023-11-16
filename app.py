@@ -57,7 +57,25 @@ def buscar():
         if  not st.session_state.cliente_disabled:
             st.subheader("Cliente: " + str(diccionario_respuesta["cnt"]))
         st.subheader("Tipo del Cliente: " + str(diccionario_respuesta["tipo_cliente"]))
-        st.subheader("Afectación de Consumo: Nivel = " + str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]) + " y Sentido = " + str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
+        
+        colorNivel = ""
+        colorSentido = ""
+
+        if "Mucho" in str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]):
+            colorNivel = "red"
+        elif "Poco" in str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]):
+            colorNivel = "green"
+        else:
+            colorNivel = "blue"
+
+        if "Alza" in str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]):
+            colorSentido = "red"
+        elif "Baja" in str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]):
+            colorSentido = "green"
+        else:
+            colorSentido = "blue"
+
+        st.subheader("Afectación de Consumo: Nivel = :"+colorNivel+ "[" + str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]) + "] y Sentido = :"+colorSentido+"[" + str(diccionario_respuesta["afectacion_de_consumo"]["sentido"])+"]")
         color = ""
         if str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy bajo" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Bajo":
             color = "green"
