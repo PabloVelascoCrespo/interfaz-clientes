@@ -49,7 +49,7 @@ def disable_selectbox(letra):
     if letra == "a":
         st.session_state.tipo_cliente_disabled = True
     elif letra == "b":
-        st.session_state.cliente_disabled = True
+        st.session_state.cliente_disabled = True 
 
 def disable_all():
     st.session_state.disable_all = True
@@ -58,10 +58,10 @@ def buscar():
     disable_all()
     if  st.session_state.cliente_disabled:
         url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(fecha)+'&tipo_cliente='+str(tipo_cliente)
-        st.title("Búsqueda del tipo de cliente")
+        st.title("Búsqueda por tipo de cliente")
     else:
         url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(fecha)+'&cnt='+str(cliente)
-        st.title("Búsqueda del cliente")
+        st.title("Búsqueda por cliente")
     respuesta = requests.get(url_alerta_consumo_energetico, headers={'accept': 'application/json'})
     print(url_alerta_consumo_energetico)
     if( respuesta.status_code == requests.codes.ok ):
@@ -74,12 +74,22 @@ def buscar():
         st.subheader("Tipo del Cliente:")
         st.write(str(diccionario_respuesta["tipo_cliente"]))
 
-        st.subheader("Afectación de Consumo: Nivel:")
-        
+        st.subheader("Afectación de Consumo:")
         col1,col2,col3,col4,col5 = st.columns(5)
+
+        flecha = ""
+
         col1.metric("Nivel", str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]))
-        col2.metric("Sentido", str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
-        
+
+        if str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]) == "Alza":
+            flecha = "⬆"
+        elif str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]) == "Baja":
+            flecha = "⬇"
+        else:
+            flecha = "→"
+
+        col2.metric("Sentido", flecha+str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
+
         color = ""
         if str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy bajo" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Bajo":
             color = "green"
@@ -137,7 +147,6 @@ def buscar():
 
     b.button('REINICIAR', on_click=reiniciar)
 
-
 def reiniciar():
     st.session_state.cliente_disabled = False
     st.session_state.tipo_cliente_disabled = False
@@ -159,21 +168,27 @@ ColourWidgetText('Verano', '#FF7B21')
 ColourWidgetText('Otoño', '#B74E0D')
 ColourWidgetText('Invierno', '#AEEDE6')
 
-ColourWidgetText('Muy fria', '#83FFFD') 
-ColourWidgetText('Fria', '#10EFFF') 
-ColourWidgetText('Templada', '#42FF35') 
-ColourWidgetText('Calurosa', '#FF0000') 
+ColourWidgetText('Muy fria', '#83FFFD')
+ColourWidgetText('Fria', '#10EFFF')
+ColourWidgetText('Templada', '#42FF35')
+ColourWidgetText('Calurosa', '#FF0000')
 ColourWidgetText('Muy calurosa', '#B30000')
 
-ColourWidgetText('Bajo', 'green') 
-ColourWidgetText('Muy bajo', 'green') 
-ColourWidgetText('Regular', 'blue') 
-ColourWidgetText('Alto', 'red') 
-ColourWidgetText('Muy alto', 'red') 
+ColourWidgetText('Bajo', 'green')
+ColourWidgetText('Muy bajo', 'green')
+ColourWidgetText('Regular', 'blue')
+ColourWidgetText('Alto', 'red')
+ColourWidgetText('Muy alto', 'red')
+
+ColourWidgetText('Mucho', 'red')
+ColourWidgetText('Poco', 'green')
+ColourWidgetText('⬆Alza', 'red')
+ColourWidgetText('⬇Baja', 'green')
+
 
 if not st.session_state.disable_all:
     with col_fecha:
-        fecha = st.date_input("Fecha", datetime.datetime.today(), disabled=st.session_state.fecha_disabled)
+        fecha = st.date_input("Fecha", datetime.datetime.today(), disabled=st.session_state.fecha_disabled, format="DD/MM/YYYY")
     with col_cliente:
         cliente = st.selectbox(
             'Selecciona el cliente',
@@ -194,4 +209,3 @@ if not st.session_state.disable_all:
             on_change=disable_selectbox,
             args="b"
         )
-
