@@ -8,6 +8,9 @@ import requests
 
 url_clientes = "http://194.233.162.198/contadores"
 url_tipo_clientes = "http://194.233.162.198/tipo_cliente" 
+fecha = ""
+tipo_cliente=""
+cliente=""
 
 st.set_page_config(layout="wide")
 
@@ -30,6 +33,9 @@ st.markdown(
 if "cliente_disabled" not in st.session_state:
     st.session_state.cliente_disabled = False
     st.session_state.tipo_cliente_disabled = False
+    st.session_state.fecha_disabled = False
+    st.session_state.disable_all = False
+
 
 def ColourWidgetText(wgt_txt, wch_colour = '#000000'):
     htmlstr = """<script>var elements = window.parent.document.querySelectorAll('*'), i;
@@ -45,37 +51,35 @@ def disable_selectbox(letra):
     elif letra == "b":
         st.session_state.cliente_disabled = True
 
+def disable_all():
+    st.session_state.disable_all = True
+
 def buscar():
+    disable_all()
     if  st.session_state.cliente_disabled:
         url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(fecha)+'&tipo_cliente='+str(tipo_cliente)
+        st.title("Búsqueda del tipo de cliente")
     else:
         url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(fecha)+'&cnt='+str(cliente)
+        st.title("Búsqueda del cliente")
     respuesta = requests.get(url_alerta_consumo_energetico, headers={'accept': 'application/json'})
+    print(url_alerta_consumo_energetico)
     if( respuesta.status_code == requests.codes.ok ):
         diccionario_respuesta = json.loads(respuesta.text)
-        st.subheader("Fecha: " + str(diccionario_respuesta["fecha"]))
+        st.subheader("Fecha:")
+        st.write(str(diccionario_respuesta["fecha"]))
         if  not st.session_state.cliente_disabled:
-            st.subheader("Cliente: " + str(diccionario_respuesta["cnt"]))
-        st.subheader("Tipo del Cliente: " + str(diccionario_respuesta["tipo_cliente"]))
+            st.subheader("Cliente:")
+            st.write(str(diccionario_respuesta["cnt"]))
+        st.subheader("Tipo del Cliente:")
+        st.write(str(diccionario_respuesta["tipo_cliente"]))
+
+        st.subheader("Afectación de Consumo: Nivel:")
         
-        colorNivel = ""
-        colorSentido = ""
-
-        if "Mucho" in str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]):
-            colorNivel = "red"
-        elif "Poco" in str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]):
-            colorNivel = "green"
-        else:
-            colorNivel = "blue"
-
-        if "Alza" in str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]):
-            colorSentido = "red"
-        elif "Baja" in str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]):
-            colorSentido = "green"
-        else:
-            colorSentido = "blue"
-
-        st.subheader("Afectación de Consumo: Nivel = :"+colorNivel+ "[" + str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]) + "] y Sentido = :"+colorSentido+"[" + str(diccionario_respuesta["afectacion_de_consumo"]["sentido"])+"]")
+        col1,col2,col3,col4,col5 = st.columns(5)
+        col1.metric("Nivel", str(diccionario_respuesta["afectacion_de_consumo"]["nivel"]))
+        col2.metric("Sentido", str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
+        
         color = ""
         if str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy bajo" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Bajo":
             color = "green"
@@ -85,8 +89,10 @@ def buscar():
             color = "blue"
         else:
             color = "gray"
-        st.subheader("Consumo del día: :"+color+"[" + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) + "]")
-        st.subheader("Meteorología:")
+        st.subheader("Consumo del día:")
+        st.write(":"+color+"[" + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) + "]")
+
+        st.subheader("Meteorología")
 
         col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -123,21 +129,28 @@ def buscar():
         if( respuesta2.status_code == requests.codes.ok ):
             diccionario_respuesta2 = json.loads(respuesta2.text)
             col2.metric("Día "+str(fecha+timedelta(days=-2))+":", "Consumo:", str(diccionario_respuesta2["tipo_de_dia_de_consumo"]["etiqueta"]), delta_color="off")
-        
+
     else:
         st.write("Día no encontrado")
 
+    a,b,c = st.columns(3)
+
+    b.button('REINICIAR', on_click=reiniciar)
 
 
 def reiniciar():
     st.session_state.cliente_disabled = False
     st.session_state.tipo_cliente_disabled = False
+    st.session_state.fecha_disabled = False
+    st.session_state.disable_all = False
 
 json_clientes = requests.get(url_clientes).text
 json_tipos_cliente = requests.get(url_tipo_clientes).text
 
 lista_clientes = json.loads(json_clientes)["contadores"]
 lista_tipos_cliente = json.loads(json_tipos_cliente)["tipo_cliente"]
+
+col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
 
 col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
 
@@ -158,27 +171,27 @@ ColourWidgetText('Regular', 'blue')
 ColourWidgetText('Alto', 'red') 
 ColourWidgetText('Muy alto', 'red') 
 
+if not st.session_state.disable_all:
+    with col_fecha:
+        fecha = st.date_input("Fecha", datetime.datetime.today(), disabled=st.session_state.fecha_disabled)
+    with col_cliente:
+        cliente = st.selectbox(
+            'Selecciona el cliente',
+            lista_clientes,
+            disabled=st.session_state.cliente_disabled,
+            on_change=disable_selectbox,
+            args="a"
+        )
+        st.button('BUSCAR', on_click=buscar)
+        st.button('REINICIAR', on_click=reiniciar)
 
-with col_fecha:
-    fecha = st.date_input("Fecha", datetime.datetime.today())
 
-with col_cliente:
-    cliente = st.selectbox(
-        'Selecciona el cliente',
-        lista_clientes,
-        disabled=st.session_state.cliente_disabled,
-        on_change=disable_selectbox,
-        args="a"
-    )
-    st.button('BUSCAR', on_click=buscar)
-    st.button('REINICIAR', on_click=reiniciar)
+    with col_tipo_cliente:
+        tipo_cliente = st.selectbox( 
+            'Selecciona el tipo del cliente',
+            lista_tipos_cliente,
+            disabled=st.session_state.tipo_cliente_disabled,
+            on_change=disable_selectbox,
+            args="b"
+        )
 
-
-with col_tipo_cliente:
-    tipo_cliente = st.selectbox(
-        'Selecciona el tipo del cliente',
-        lista_tipos_cliente,
-        disabled=st.session_state.tipo_cliente_disabled,
-        on_change=disable_selectbox,
-        args="b"
-    )
