@@ -68,6 +68,7 @@ def data_page():
             else:
                 st.title("Búsqueda por cliente")
             diccionario_respuesta = json.loads(respuesta.text)
+            print(diccionario_respuesta)
             st.subheader("Fecha:")
             st.write( diccionario_respuesta["fecha"][8:10]+"/"+diccionario_respuesta["fecha"][5:7]+"/"+diccionario_respuesta["fecha"][0:4])
             if st.session_state["tipo_cliente"] == '-------------------------':
@@ -92,6 +93,8 @@ def data_page():
 
             col2.metric("Sentido", flecha+str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
 
+            col3.metric("Ajuste", "",diccionario_respuesta["afectacion_de_consumo"]["ajuste"])
+
             color = ""
             if str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy bajo" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Bajo":
                 color = "green"
@@ -101,8 +104,6 @@ def data_page():
                 color = "blue"
             else:
                 color = "gray"
-            st.subheader("Consumo del día:")
-            st.write(":"+color+"[" + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) + "]")
 
             st.subheader("Meteorología")
 
@@ -133,7 +134,13 @@ def data_page():
                 col5.metric("Fiesta", str(diccionario_respuesta["detalles_dia"]["fiesta"]))
             else:
                 col5.metric("Fiesta", "No")
+            if diccionario_respuesta["detalles_dia"]["vispera_festivo"]:
+                col5.metric("Víspera de festivo", str(diccionario_respuesta["detalles_dia"]["vispera_fiesta"]))
+            if diccionario_respuesta["detalles_dia"]["post_festivo"]:
+                col5.metric("Post festivo", str(diccionario_respuesta["detalles_dia"]["post_fiesta"]))
 
+            st.subheader("Consumo del día:")
+            st.write(":"+color+"[" + str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) + "]")
         else:
             st.title("Día no encontrado")
 
@@ -183,7 +190,7 @@ def main_page():
     col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
 
     with col_fecha:
-        st.session_state["fecha"] = st.date_input("Fecha", datetime.datetime.today(), disabled=st.session_state.fecha_disabled, format="DD/MM/YYYY")
+        st.session_state["fecha"] = st.date_input("Fecha", value=datetime.date(2022, 10, 1),min_value=datetime.date(2022, 10, 1), max_value=datetime.date(2023, 10, 31), disabled=st.session_state.fecha_disabled, format="DD/MM/YYYY")
     with col_cliente:
         opciones_cnt = ['-------------------------']+lista_clientes
         st.session_state["cnt"] = st.selectbox(
