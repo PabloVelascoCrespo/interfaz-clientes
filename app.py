@@ -68,7 +68,6 @@ def data_page():
             else:
                 st.title("Búsqueda por cliente")
             diccionario_respuesta = json.loads(respuesta.text)
-            print(diccionario_respuesta)
             st.subheader("Fecha:")
             st.write( diccionario_respuesta["fecha"][8:10]+"/"+diccionario_respuesta["fecha"][5:7]+"/"+diccionario_respuesta["fecha"][0:4])
             if st.session_state["tipo_cliente"] == '-------------------------':
@@ -93,7 +92,7 @@ def data_page():
 
             col2.metric("Sentido", flecha+str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
 
-            col3.metric("Ajuste", "",diccionario_respuesta["afectacion_de_consumo"]["ajuste"])
+            col3.metric("Ajuste", "",str(diccionario_respuesta["afectacion_de_consumo"]["ajuste"])+" kWh")
 
             color = ""
             if str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy bajo" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Bajo":
