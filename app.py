@@ -52,27 +52,36 @@ def disable_all():
 def data_page():
     url_alerta_consumo_energetico = ""
     respuesta = ""
-    if st.session_state["cnt"] == '-------------------------' and st.session_state["tipo_cliente"] == '-------------------------':
+#    if st.session_state["cnt"] == '-------------------------' and st.session_state["tipo_cliente"] == '-------------------------':
+#        st.title("Debes seleccionar un cliente o un tipo de cliente.")
+#    elif st.session_state["cnt"] == '-------------------------':
+#        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&tipo_cliente='+str(st.session_state["tipo_cliente"])
+#    else:
+#        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&cnt='+str(st.session_state["cnt"])
+#    if url_alerta_consumo_energetico == "":
+#        pass
+
+    if st.session_state["tipo_cliente"] == '-------------------------':
         st.title("Debes seleccionar un cliente o un tipo de cliente.")
-    elif st.session_state["cnt"] == '-------------------------':
-        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&tipo_cliente='+str(st.session_state["tipo_cliente"])
     else:
-        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&cnt='+str(st.session_state["cnt"])
+        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&tipo_cliente='+str(st.session_state["tipo_cliente"])    
     if url_alerta_consumo_energetico == "":
         pass
     else:
         respuesta = requests.get(url_alerta_consumo_energetico, headers={'accept': 'application/json'})
         if( respuesta.status_code == requests.codes.ok ):
-            if st.session_state["cnt"] == '-------------------------':
-                st.title("Búsqueda por tipo de cliente")
-            else:
-                st.title("Búsqueda por cliente")
+#            if st.session_state["cnt"] == '-------------------------':
+#                st.title("Búsqueda por tipo de cliente")
+#            else:
+#                st.title("Búsqueda por cliente")
+            st.title("Búsqueda por tipo de cliente")
             diccionario_respuesta = json.loads(respuesta.text)
+            print(diccionario_respuesta)
             st.subheader("Fecha:")
             st.write( diccionario_respuesta["fecha"][8:10]+"/"+diccionario_respuesta["fecha"][5:7]+"/"+diccionario_respuesta["fecha"][0:4])
-            if st.session_state["tipo_cliente"] == '-------------------------':
-                st.subheader("Cliente:")
-                st.write(str(diccionario_respuesta["cnt"]))
+#            if st.session_state["tipo_cliente"] == '-------------------------':
+#                st.subheader("Cliente:")
+#                st.write(str(diccionario_respuesta["cnt"]))
             st.subheader("Tipo del Cliente:")
             st.write(str(diccionario_respuesta["tipo_cliente"]))
 
@@ -93,6 +102,7 @@ def data_page():
             col2.metric("Sentido", flecha+str(diccionario_respuesta["afectacion_de_consumo"]["sentido"]))
 
             col3.metric("Ajuste", "",str(diccionario_respuesta["afectacion_de_consumo"]["ajuste"])+" kWh")
+            col4.metric("Desviación estándar", "",str(diccionario_respuesta["afectacion_de_consumo"]["desviacion"])+" kWh")
 
             color = ""
             if str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Muy bajo" or str(diccionario_respuesta["tipo_de_dia_de_consumo"]["etiqueta"]) == "Bajo":
@@ -186,21 +196,23 @@ def data_page():
     ColourWidgetText('→No afecta', 'blue')
 
 def main_page():
-    col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
+    #col_fecha, col_cliente, col_tipo_cliente = st.columns(3)
+
+    col_fecha, col_tipo_cliente = st.columns(2)
 
     with col_fecha:
         st.session_state["fecha"] = st.date_input("Fecha", value=datetime.date(2022, 10, 1),min_value=datetime.date(2022, 10, 1), max_value=datetime.date(2023, 10, 31), disabled=st.session_state.fecha_disabled, format="DD/MM/YYYY")
-    with col_cliente:
-        opciones_cnt = ['-------------------------']+lista_clientes
-        st.session_state["cnt"] = st.selectbox(
-            'Selecciona el cliente',
-            opciones_cnt,
-            key="cnt_selectbox",
-            on_change=disable_selectbox,
-            args="a",
-            disabled=st.session_state.cliente_disabled
-        )
-
+   # with col_cliente:
+   #     opciones_cnt = ['-------------------------']+lista_clientes
+   #     st.session_state["cnt"] = st.selectbox(
+   #         'Selecciona el cliente',
+   #         opciones_cnt,
+   #         key="cnt_selectbox",
+   #         on_change=disable_selectbox,
+   #         args="a",
+   #         disabled=st.session_state.cliente_disabled
+   #     )
+        
 
     with col_tipo_cliente:
         opciones_tipo_cliente = ['-------------------------']+lista_tipos_cliente
@@ -212,11 +224,14 @@ def main_page():
             args="b",
             disabled=st.session_state.tipo_cliente_disabled
         )
-    if col_cliente.button("BUSCAR"):
+
+    a,b,c,d,e,f,g,h,i,j,k,l,m,n,ñ = st.columns(15)
+
+    if h.button("BUSCAR"):
         st.session_state["current_page"] = "data_page"
         st.rerun()
 
-    col_cliente.button("REINICIAR", on_click=reiniciar)
+    h.button("REINICIAR", on_click=reiniciar)
 
 def main():
     st.session_state.setdefault("current_page", "main_page")
