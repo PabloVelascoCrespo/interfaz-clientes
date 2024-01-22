@@ -225,13 +225,13 @@ def main_page():
             disabled=st.session_state.tipo_cliente_disabled
         )
 
-    a,b,c,d,e,f,g,h,i,j,k,l,m,n,ñ = st.columns(15)
+    a,b,c,d,e,f,g,h,i,j,k = st.columns(11)
 
-    if h.button("BUSCAR"):
+    if f.button("BUSCAR"):
         st.session_state["current_page"] = "data_page"
         st.rerun()
 
-    h.button("REINICIAR", on_click=reiniciar)
+    f.button("REINICIAR", on_click=reiniciar)
 
 def main():
     st.session_state.setdefault("current_page", "main_page")
