@@ -6,8 +6,8 @@ import requests
 import json
 import requests
 
-url_clientes = "http://194.233.162.198/contadores"
-url_tipo_clientes = "http://194.233.162.198/tipo_cliente" 
+url_clientes = "http://172.233.121.70/contadores"
+url_tipo_clientes = "http://172.233.121.70/tipo_cliente" 
 fecha = ""
 tipo_cliente=""
 cliente=""
@@ -55,16 +55,16 @@ def data_page():
 #    if st.session_state["cnt"] == '-------------------------' and st.session_state["tipo_cliente"] == '-------------------------':
 #        st.title("Debes seleccionar un cliente o un tipo de cliente.")
 #    elif st.session_state["cnt"] == '-------------------------':
-#        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&tipo_cliente='+str(st.session_state["tipo_cliente"])
+#        url_alerta_consumo_energetico = 'http://172.233.121.70/early_warning?dia='+str(st.session_state["fecha"])+'&tipo_cliente='+str(st.session_state["tipo_cliente"])
 #    else:
-#        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&cnt='+str(st.session_state["cnt"])
+#        url_alerta_consumo_energetico = 'http://172.233.121.70/early_warning?dia='+str(st.session_state["fecha"])+'&cnt='+str(st.session_state["cnt"])
 #    if url_alerta_consumo_energetico == "":
 #        pass
 
     if st.session_state["tipo_cliente"] == '-------------------------':
         st.title("Debes seleccionar un cliente o un tipo de cliente.")
     else:
-        url_alerta_consumo_energetico = 'http://194.233.162.198/early_warning?dia='+str(st.session_state["fecha"])+'&tipo_cliente='+str(st.session_state["tipo_cliente"])    
+        url_alerta_consumo_energetico = 'http://172.233.121.70/early_warning?dia='+str(st.session_state["fecha"])+'&tipo_cliente='+str(st.session_state["tipo_cliente"])    
     if url_alerta_consumo_energetico == "":
         pass
     else:
